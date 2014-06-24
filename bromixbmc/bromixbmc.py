@@ -65,11 +65,19 @@ class Bromixbmc:
             
         return xbmcplugin.addDirectoryItem(handle=self.Addon.Handle,url=url,listitem=item,isFolder=True)
     
-    def addVideoLink(self, name, params={}, thumbnailImage="", duration="", fanart=None):
+    def addVideoLink(self, name, params={}, thumbnailImage="", duration=None, fanart=None, plot=""):
         url = self.createUrl(params)
         
         item = xbmcgui.ListItem(unicode(name), iconImage="DefaultVideo.png", thumbnailImage=thumbnailImage)
-        item.setInfo(type="video", infoLabels={"title": name, "duration": duration})
+        
+        # prepare infoLabels
+        infoLabels = {'title': name,
+                      'plot': plot
+                      }
+        if duration!=None:
+            infoLabels['duration'] = duration
+            
+        item.setInfo(type="video", infoLabels=infoLabels)
         item.setProperty('IsPlayable', 'true')
         if fanart!=None:
             item.setProperty("fanart_image", fanart)
