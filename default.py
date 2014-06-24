@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
@@ -13,10 +14,6 @@ pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
 
-__addon_data_path__ = bromixbmc.Addon.DataPath
-if not os.path.isdir(__addon_data_path__):
-    os.mkdir(__addon_data_path__)
-    
 __FANART__ = os.path.join(bromixbmc.Addon.Path, "fanart.jpg")
 
 ACTION_SHOW_HIGHLIGHTS = 'showHighlights'
@@ -28,6 +25,8 @@ ACTION_SHOW_FAVS = 'showFavs'
 ACTION_PLAY = 'play'
 
 SETTING_SHOW_FANART = bromixbmc.Addon.getSetting('showFanart')=="true"
+if not SETTING_SHOW_FANART:
+    __FANART__ = ""
 
 def _getContentAsJson(url):
     result = {}
@@ -54,14 +53,16 @@ def _listEpisodes(episodes):
             thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
             
         title = episode.get('episode-title', "")
-        subtitle = episode.get('episode-subtitle', "")
+        subtitle = episode.get('episode-subtitle', None)
         plot = episode.get('episode-long-description', "")
         
         id = episode.get('episode-additional-info', None)
         if id!=None:
             id = id.get('episode-brightcove-id', None)
         
-        name = title+" - "+subtitle
+        name = title
+        if subtitle!=None and len(subtitle)>0:
+            name = title+" - "+subtitle
         
         if id!=None:
             params = {'action': ACTION_PLAY,
