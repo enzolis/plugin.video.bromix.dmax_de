@@ -7,8 +7,8 @@ import os
 import json
 import urllib2
 
-import pydevd
-pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
+#import pydevd
+#pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
@@ -44,6 +44,7 @@ def _getContentAsJson(url):
 def _listEpisodes(episodes):
     episodes_list = episodes.get('episodes-list', {})
     
+    xbmcplugin.setContent(bromixbmc.Addon.Handle, 'episodes')
     for episode in episodes_list:
         thumbnailImage = episode.get('episode-cloudinary-image', None)
         if thumbnailImage!=None:
@@ -62,7 +63,7 @@ def _listEpisodes(episodes):
         if id!=None:
             params = {'action': ACTION_PLAY,
                       'episode': id}
-            bromixbmc.addVideoLink(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, plot=plot)
+            bromixbmc.addVideoLink(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, plot=plot, tvshowtitle=title)
     
 def _listSeries(series):
     def _sort_key(d):
