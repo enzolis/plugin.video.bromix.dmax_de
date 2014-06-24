@@ -41,7 +41,7 @@ def _getContentAsJson(url):
     
     return result
 
-def _listEpisodes(episodes):
+def _listEpisodes(episodes, showSeriesName=True):
     episodes_list = episodes.get('episodes-list', {})
     
     for episode in episodes_list:
@@ -51,7 +51,9 @@ def _listEpisodes(episodes):
         plot = episode.get('episode-long-description', "")
         id = str(episode.get('episode-id', ""))
         
-        name = title+" - "+subtitle
+        name = subtitle
+        if showSeriesName:
+            name = title+" - " +name
         
         if id!="":
             params = {'action': ACTION_PLAY,
@@ -74,10 +76,10 @@ def _listSeries(series):
             bromixbmc.addDir(name, params=params, fanart=__FANART__)
             pass
 
-def _listJsonResult(jsonResult):
+def _listJsonResult(jsonResult, showSeriesName=True):
     episodes = jsonResult.get('episodes', None)
     if episodes!=None:
-        _listEpisodes(episodes)
+        _listEpisodes(episodes, showSeriesName)
         
     series = jsonResult.get('series', None)
     if series!=None:
@@ -111,11 +113,22 @@ def showLibrary():
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
 
+def showEpisodes(series_id):
+    json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/series//'+series_id+'/episodes/')
+    
+    _listJsonResult(json, showSeriesName=False)
+    
+    xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
+    return True
+
 action = bromixbmc.getParam('action')
+series_id = bromixbmc.getParam('series')
 
 if action==ACTION_SHOW_HIGHLIGHTS:
     showHighlights()
 elif action==ACTION_SHOW_LIBRARY:
     showLibrary()
+elif action==ACTION_SHOW_EPISODES and series_id!=None:
+    showEpisodes(series_id)
 else:
     showIndex()
