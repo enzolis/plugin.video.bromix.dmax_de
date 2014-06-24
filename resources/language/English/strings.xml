@@ -2,8 +2,9 @@
 <strings>
   <string id="30000">Library</string>
   <string id="30001">Highlights</string>
-  <string id="30002">Add to DMAX.de favourites</string>
+  <string id="30002">Add to favourites of DMAX.de </string>
   <string id="30003">Remove from favourites of DMAX.de</string>
+  <string id="30004">Favourites</string>
   
   <string id="30500">Show fanart</string>
   

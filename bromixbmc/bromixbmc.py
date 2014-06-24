@@ -12,6 +12,8 @@ import xbmcplugin
 
 import urllib
 import urlparse
+import os
+import json
 
 class Addon:
     def __init__(self, addon_id, argv):
@@ -22,12 +24,33 @@ class Addon:
         self.Name = self._Instance.getAddonInfo('name')
         self.Icon = self._Instance.getAddonInfo('icon')
         self.DataPath = xbmc.translatePath("special://profile/addon_data/"+self.Id)
+        self._FavsFile = os.path.join(self.DataPath, "favs.dat")
+        if not os.path.isdir(self.DataPath):
+            os.mkdir(self.DataPath)
         
     def getSetting(self, id):
         return self._Instance.getSetting(id)
     
     def localize(self, id):
         return self._Instance.getLocalizedString(id)
+    
+    def loadFavs(self):
+        favs = {'favs': {}}
+        if self._FavsFile!=None:
+            if os.path.exists(self._FavsFile):
+                try:
+                    file = open(self._FavsFile, 'r')
+                    favs = json.loads(file.read())
+                except:
+                    # do nothing
+                    pass
+                
+        return favs
+    
+    def storeFavs(self, favs):
+        if self._FavsFile!=None and favs!=None:
+            with open(self._FavsFile, 'w') as outfile:
+                json.dump(favs, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
 
 class Bromixbmc:
     def __init__(self, addon_id, argv):

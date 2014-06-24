@@ -22,6 +22,8 @@ __FANART__ = os.path.join(bromixbmc.Addon.Path, "fanart.jpg")
 ACTION_SHOW_HIGHLIGHTS = 'showHighlights'
 ACTION_SHOW_LIBRARY = 'showLibrary'
 ACTION_SHOW_EPISODES = 'showEpisodes'
+ACTION_ADD_TO_FAV = 'addToFav'
+ACTION_SHOW_FAVS = 'showFavs'
 ACTION_PLAY = 'play'
 
 SETTING_SHOW_FANART = bromixbmc.Addon.getSetting('showFanart')=="true"
@@ -83,7 +85,12 @@ def _listSeries(series):
         if name!=None and id!=None:
             params = {'action': ACTION_SHOW_EPISODES,
                       'series': id}
-            bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__)
+            
+            contextParams = {'action': ACTION_ADD_TO_FAV,
+                             'series': id}
+            contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
+            contextMenu = [(bromixbmc.Addon.localize(30002), contextRun)]
+            bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
             pass
 
 def _listJsonResult(jsonResult):
@@ -103,6 +110,12 @@ def showIndex():
     # add 'Videotheke'
     params = {'action': ACTION_SHOW_LIBRARY}
     bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, fanart=__FANART__)
+    
+    # show favourties?
+    favs = bromixbmc.Addon.loadFavs()
+    if len(favs['favs'])>0:
+        params = {'action': ACTION_SHOW_FAVS}
+        bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", params=params, fanart=__FANART__)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
@@ -139,6 +152,48 @@ def play(episode_id):
         xbmcplugin.setResolvedUrl(bromixbmc.Addon.Handle, True, listitem)
     else:
         bromixbmc.showNotification(bromixbmc.Addon.localize(30999))
+        
+def addToFavs(series_id):
+    favs = bromixbmc.Addon.loadFavs()
+    
+    json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/series/')
+    series = json.get('series', {})
+    series_list = series.get('series-list', {})
+    for series in series_list:
+        id = series.get('series-id', "")
+        title = series.get('series-title', None)
+        if title!=None and id==series_id:
+            favs['favs'][id] = {}
+            item = favs['favs'][id]
+            item['title'] = title
+            
+            thumbnailImage = series.get('series-cloudinary-image', None)
+            if thumbnailImage!=None:
+                thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
+            item['image'] = thumbnailImage
+            
+            bromixbmc.Addon.storeFavs(favs)  
+            break
+        
+def showFavs():
+    def _sort_key(d):
+        return d[1].get('title', "")
+    
+    _favs = bromixbmc.Addon.loadFavs()['favs']
+    favs = sorted(_favs.items(), key=_sort_key, reverse=False)
+    
+    for series in favs:
+        item = series[1]
+        name = item.get('title', None)
+        thumbnailImage = item.get('image', "")
+        
+        if name!=None:
+            params = {'action': ACTION_SHOW_EPISODES,
+                      'series': series[0]}
+            bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__)
+            
+    xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
+    return True
 
 action = bromixbmc.getParam('action')
 series_id = bromixbmc.getParam('series')
@@ -152,5 +207,9 @@ elif action==ACTION_SHOW_EPISODES and series_id!=None:
     showEpisodes(series_id)
 elif action==ACTION_PLAY and episode_id!=None:
     play(episode_id)
+elif action==ACTION_ADD_TO_FAV and series_id!=None:
+    addToFavs(series_id)
+elif action==ACTION_SHOW_FAVS:
+    showFavs()
 else:
     showIndex()
