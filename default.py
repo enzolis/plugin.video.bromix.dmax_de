@@ -8,13 +8,16 @@ import os
 import json
 import urllib2
 
-import pydevd
-pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
+#import pydevd
+#pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
 
 __FANART__ = os.path.join(bromixbmc.Addon.Path, "fanart.jpg")
+__ICON_HIGHLIGHTS__ = os.path.join(bromixbmc.Addon.Path, "resources/media/highlight.png")
+__ICON_LIBRARY__ = os.path.join(bromixbmc.Addon.Path, "resources/media/library.png")
+__ICON_FAVOURITES__ = os.path.join(bromixbmc.Addon.Path, "resources/media/pin.png")
 
 ACTION_SHOW_HIGHLIGHTS = 'showHighlights'
 ACTION_SHOW_LIBRARY = 'showLibrary'
@@ -107,17 +110,17 @@ def _listJsonResult(jsonResult):
 def showIndex():
     # add 'Highlights'
     params = {'action': ACTION_SHOW_HIGHLIGHTS}
-    bromixbmc.addDir(bromixbmc.Addon.localize(30001), params = params, fanart=__FANART__)
+    bromixbmc.addDir(bromixbmc.Addon.localize(30001), params = params, thumbnailImage=__ICON_HIGHLIGHTS__, fanart=__FANART__)
     
     # add 'Videotheke'
     params = {'action': ACTION_SHOW_LIBRARY}
-    bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, fanart=__FANART__)
+    bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, thumbnailImage=__ICON_LIBRARY__, fanart=__FANART__)
     
     # show favourties?
     favs = bromixbmc.Addon.loadFavs()
     if len(favs['favs'])>0:
         params = {'action': ACTION_SHOW_FAVS}
-        bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", params=params, fanart=__FANART__)
+        bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", thumbnailImage=__ICON_FAVOURITES__, params=params, fanart=__FANART__)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
