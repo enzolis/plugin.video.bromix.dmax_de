@@ -41,7 +41,7 @@ def _getContentAsJson(url):
     
     return result
 
-def _listEpisodes(episodes, showSeriesName=True):
+def _listEpisodes(episodes):
     episodes_list = episodes.get('episodes-list', {})
     
     for episode in episodes_list:
@@ -52,13 +52,14 @@ def _listEpisodes(episodes, showSeriesName=True):
         title = episode.get('episode-title', "")
         subtitle = episode.get('episode-subtitle', "")
         plot = episode.get('episode-long-description', "")
-        id = str(episode.get('episode-id', ""))
         
-        name = subtitle
-        if showSeriesName:
-            name = title+" - " +name
+        id = episode.get('episode-additional-info', None)
+        if id!=None:
+            id = id.get('episode-brightcove-id', None)
         
-        if id!="":
+        name = title+" - "+subtitle
+        
+        if id!=None:
             params = {'action': ACTION_PLAY,
                       'episode': id}
             bromixbmc.addVideoLink(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, plot=plot)
@@ -84,10 +85,10 @@ def _listSeries(series):
             bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__)
             pass
 
-def _listJsonResult(jsonResult, showSeriesName=True):
+def _listJsonResult(jsonResult):
     episodes = jsonResult.get('episodes', None)
     if episodes!=None:
-        _listEpisodes(episodes, showSeriesName)
+        _listEpisodes(episodes)
         
     series = jsonResult.get('series', None)
     if series!=None:
@@ -124,13 +125,23 @@ def showLibrary():
 def showEpisodes(series_id):
     json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/series//'+series_id+'/episodes/')
     
-    _listJsonResult(json, showSeriesName=False)
+    _listJsonResult(json)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
 
+def play(episode_id):
+    json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
+    url = json.get('FLVURL', None)
+    if url!=None:
+        listitem = xbmcgui.ListItem(path=url)
+        xbmcplugin.setResolvedUrl(bromixbmc.Addon.Handle, True, listitem)
+    else:
+        bromixbmc.showNotification(bromixbmc.Addon.localize(30999))
+
 action = bromixbmc.getParam('action')
 series_id = bromixbmc.getParam('series')
+episode_id = bromixbmc.getParam('episode')
 
 if action==ACTION_SHOW_HIGHLIGHTS:
     showHighlights()
@@ -138,5 +149,7 @@ elif action==ACTION_SHOW_LIBRARY:
     showLibrary()
 elif action==ACTION_SHOW_EPISODES and series_id!=None:
     showEpisodes(series_id)
+elif action==ACTION_PLAY and episode_id!=None:
+    play(episode_id)
 else:
     showIndex()
