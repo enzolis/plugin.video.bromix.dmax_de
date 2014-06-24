@@ -45,7 +45,10 @@ def _listEpisodes(episodes, showSeriesName=True):
     episodes_list = episodes.get('episodes-list', {})
     
     for episode in episodes_list:
-        thumbnailImage = episode.get('episode-image', "")
+        thumbnailImage = episode.get('episode-cloudinary-image', None)
+        if thumbnailImage!=None:
+            thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
+            
         title = episode.get('episode-title', "")
         subtitle = episode.get('episode-subtitle', "")
         plot = episode.get('episode-long-description', "")
@@ -70,10 +73,15 @@ def _listSeries(series):
     for series in series_list:
         name = series.get('series-title', None)
         id = series.get('series-id', None)
+        
+        thumbnailImage = series.get('series-cloudinary-image', None)
+        if thumbnailImage!=None:
+            thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
+        
         if name!=None and id!=None:
             params = {'action': ACTION_SHOW_EPISODES,
                       'series': id}
-            bromixbmc.addDir(name, params=params, fanart=__FANART__)
+            bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__)
             pass
 
 def _listJsonResult(jsonResult, showSeriesName=True):
