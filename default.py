@@ -14,12 +14,24 @@ bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
 __addon_data_path__ = bromixbmc.Addon.DataPath
 if not os.path.isdir(__addon_data_path__):
     os.mkdir(__addon_data_path__)
+    
+__FANART__ = os.path.join(bromixbmc.Addon.Path, "fanart.jpg")
 
-#sevenTv = SevenTv(os.path.join(__addon_data_path__, 'favs.dat'))
+ACTION_SHOW_HIGHLIGHTS = 'showHighlights'
+ACTION_SHOW_LIBRARY = 'showLibrary'
 
 SETTING_SHOW_FANART = bromixbmc.Addon.getSetting('showFanart')=="true"
 
 def showIndex():
-    pass
+    # add 'Highlights'
+    params = {'action': ACTION_SHOW_HIGHLIGHTS}
+    bromixbmc.addDir(bromixbmc.Addon.localize(30001), params = params, fanart=__FANART__)
+    
+    # add 'Videotheke'
+    params = {'action': ACTION_SHOW_LIBRARY}
+    bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, fanart=__FANART__)
+    
+    xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
+    return True
 
 showIndex()
