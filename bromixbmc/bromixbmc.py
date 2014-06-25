@@ -2,6 +2,7 @@
 
 """
 Version 1.0.1 (2014.06.24)
+- added support for helping with favorites
 - initial release
 """
 
