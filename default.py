@@ -23,7 +23,7 @@ ACTION_SHOW_HIGHLIGHTS = 'showHighlights'
 ACTION_SHOW_LIBRARY = 'showLibrary'
 ACTION_SHOW_EPISODES = 'showEpisodes'
 ACTION_ADD_TO_FAV = 'addToFav'
-ACTION_REMOVE_FROM_FAV = 'removeFromFav'
+ACTION_REMOVE_FROM_FAVS = 'removeFromFavs'
 ACTION_SHOW_FAVS = 'showFavs'
 ACTION_PLAY = 'play'
 
@@ -180,7 +180,7 @@ def addToFavs(series_id):
             bromixbmc.Addon.storeFavs(favs)  
             break
         
-def removeFromFav(series_id):
+def removeFromFavs(series_id):
     favs = bromixbmc.Addon.loadFavs()
     fav = favs['favs'].get(series_id, None)
     if fav!=None:
@@ -197,20 +197,21 @@ def showFavs():
     favs = sorted(_favs.items(), key=_sort_key, reverse=False)
     
     for series in favs:
-        item = series[1]
-        name = item.get('title', None)
-        thumbnailImage = item.get('image', "")
-        
-        if name!=None:
-            params = {'action': ACTION_SHOW_EPISODES,
-                      'series': series[0]}
+        if len(series)==2:
+            item = series[1]
+            name = item.get('title', None)
+            thumbnailImage = item.get('image', "")
             
-            contextParams = {'action': ACTION_REMOVE_FROM_FAV,
-                             'series': series[0]}
-            contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
-            contextMenu = [(bromixbmc.Addon.localize(30003), contextRun)]
-            
-            bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
+            if name!=None:
+                params = {'action': ACTION_SHOW_EPISODES,
+                          'series': series[0]}
+                
+                contextParams = {'action': ACTION_REMOVE_FROM_FAVS,
+                                 'series': series[0]}
+                contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
+                contextMenu = [(bromixbmc.Addon.localize(30003), contextRun)]
+                
+                bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
             
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
@@ -229,8 +230,8 @@ elif action==ACTION_PLAY and episode_id!=None:
     play(episode_id)
 elif action==ACTION_ADD_TO_FAV and series_id!=None:
     addToFavs(series_id)
-elif action==ACTION_REMOVE_FROM_FAV and series_id!=None:
-    removeFromFav(series_id)
+elif action==ACTION_REMOVE_FROM_FAVS and series_id!=None:
+    removeFromFavs(series_id)
 elif action==ACTION_SHOW_FAVS:
     showFavs()
 else:
