@@ -2,6 +2,7 @@
 
 """
 Version 1.0.2 (2014.06.25)
+- added 'refresh' and 'goToRoot'
 - added 'getFavorites', 'addFavorite' and 'removeFavorite'
 - set the encoding for the favorite routines to utf-8
 - removed 'duration' and 'plot' from addVideoLink -> therefore use 'additionalInfoLabels'
@@ -68,6 +69,8 @@ class Addon:
         if fav!=None:
             del favs['favs'][id]
             self._storeFavs(favs)
+            
+        return self.getFavorites()
     
     def _storeFavs(self, favs):
         if self._FavsFile!=None and favs!=None:
@@ -91,11 +94,22 @@ class Bromixbmc:
             return self.Params[name]
         return default
     
-    def createUrl(self, params_dict):
-        return self.BaseUrl + '?' + urllib.urlencode(params_dict)
+    def createUrl(self, params_dict=None):
+        if params_dict!=None:
+            return self.BaseUrl + '?' + urllib.urlencode(params_dict)
+        
+        # default
+        return self.BaseUrl
     
     def showNotification(self, text):
         xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(self.AddonName,text, 5000, self.AddonIcon))
+        
+    def goToRoot(self):
+        url = self.createUrl()
+        xbmc.executebuiltin("Container.Update("+url+")")
+        
+    def refresh(self):
+        xbmc.executebuiltin("Container.Refresh")
         
     def addDir(self, name, params={}, thumbnailImage="", fanart=None, contextMenu=None):
         url = self.createUrl(params)
