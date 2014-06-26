@@ -8,8 +8,8 @@ import os
 import json
 import urllib2
 
-#import pydevd
-#pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
+import pydevd
+pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
@@ -46,7 +46,7 @@ def _getContentAsJson(url):
     
     return result
 
-def _listEpisodes(episodes):
+def _listEpisodes(episodes, showSeriesTitle=True):
     episodes_list = episodes.get('episodes-list', {})
     
     xbmcplugin.setContent(bromixbmc.Addon.Handle, 'episodes')
@@ -56,16 +56,22 @@ def _listEpisodes(episodes):
             thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
             
         title = episode.get('episode-title', "")
-        subtitle = episode.get('episode-subtitle', None)
+        subtitle = episode.get('episode-subtitle', "")
         plot = episode.get('episode-long-description', "")
         
         id = episode.get('episode-additional-info', None)
         if id!=None:
             id = id.get('episode-brightcove-id', None)
         
-        name = title
-        if subtitle!=None and len(subtitle)>0:
-            name = title+" - "+subtitle
+        if showSeriesTitle:
+            name = title
+            if len(subtitle)>0:
+                name = name+" - "+subtitle
+        else:
+            if len(subtitle)>0:
+                name = subtitle
+            else:
+                name = title
         
         if id!=None:
             params = {'action': ACTION_PLAY,
@@ -100,10 +106,10 @@ def _listSeries(series):
             bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
             pass
 
-def _listJsonResult(jsonResult):
+def _listJsonResult(jsonResult, showSeriesTitle=True):
     episodes = jsonResult.get('episodes', None)
     if episodes!=None:
-        _listEpisodes(episodes)
+        _listEpisodes(episodes, showSeriesTitle)
         
     series = jsonResult.get('series', None)
     if series!=None:
@@ -130,7 +136,7 @@ def showIndex():
 def showHighlights():
     json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/targets/featured/')
     
-    _listJsonResult(json)
+    _listJsonResult(json, showSeriesTitle=True)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
@@ -146,7 +152,7 @@ def showLibrary():
 def showEpisodes(series_id):
     json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/series//'+series_id+'/episodes/')
     
-    _listJsonResult(json)
+    _listJsonResult(json, showSeriesTitle=False)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
