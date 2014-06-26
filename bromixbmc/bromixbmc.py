@@ -3,6 +3,7 @@
 """
 Version 1.0.2 (2014.06.25)
 - removed 'duration' and 'plot' from addVideoLink -> therefore use 'additionalInfoLabels'
+- set the encoding for the favorite routines to utf-8
 
 Version 1.0.1 (2014.06.24)
 - added support for helping with favorites
@@ -44,7 +45,7 @@ class Addon:
             if os.path.exists(self._FavsFile):
                 try:
                     file = open(self._FavsFile, 'r')
-                    favs = json.loads(file.read())
+                    favs = json.loads(file.read(), encoding='utf-8')
                 except:
                     # do nothing
                     pass
@@ -54,7 +55,7 @@ class Addon:
     def storeFavs(self, favs):
         if self._FavsFile!=None and favs!=None:
             with open(self._FavsFile, 'w') as outfile:
-                json.dump(favs, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
+                json.dump(favs, outfile, sort_keys = True, indent = 4, encoding='utf-8')
 
 class Bromixbmc:
     def __init__(self, addon_id, argv):
