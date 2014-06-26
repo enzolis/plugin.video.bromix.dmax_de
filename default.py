@@ -125,8 +125,8 @@ def showIndex():
     bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, thumbnailImage=__ICON_LIBRARY__, fanart=__FANART__)
     
     # show favourties?
-    favs = bromixbmc.Addon.loadFavs()
-    if len(favs['favs'])>0:
+    favs = bromixbmc.Addon.getFavorites()
+    if len(favs)>0:
         params = {'action': ACTION_SHOW_FAVS}
         bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", thumbnailImage=__ICON_FAVOURITES__, params=params, fanart=__FANART__)
     
@@ -167,8 +167,6 @@ def play(episode_id):
         bromixbmc.showNotification(bromixbmc.Addon.localize(30999))
         
 def addToFavs(series_id):
-    favs = bromixbmc.Addon.loadFavs()
-    
     json = _getContentAsJson('http://m.app.dmax.de/free-to-air/android/genesis/series/')
     series = json.get('series', {})
     series_list = series.get('series-list', {})
@@ -176,33 +174,28 @@ def addToFavs(series_id):
         id = series.get('series-id', "")
         title = series.get('series-title', None)
         if title!=None and id==series_id:
-            favs['favs'][id] = {}
-            item = favs['favs'][id]
-            item['title'] = title
+            
+            newFav = {}
+            newFav['title'] = title
             
             thumbnailImage = series.get('series-cloudinary-image', None)
             if thumbnailImage!=None:
                 thumbnailImage =  'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
-            item['image'] = thumbnailImage
+            newFav['image'] = thumbnailImage
             
-            bromixbmc.Addon.storeFavs(favs)  
+            bromixbmc.Addon.addFavorite(id, newFav)  
             break
         
 def removeFromFavs(series_id):
-    favs = bromixbmc.Addon.loadFavs()
-    fav = favs['favs'].get(series_id, None)
-    if fav!=None:
-        del favs['favs'][series_id]
-        bromixbmc.Addon.storeFavs(favs)
-    
+    favs = bromixbmc.Addon.removeFavorite(series_id)
     xbmc.executebuiltin("Container.Refresh")
         
 def showFavs():
     def _sort_key(d):
         return d[1].get('title', "")
     
-    _favs = bromixbmc.Addon.loadFavs()['favs']
-    favs = sorted(_favs.items(), key=_sort_key, reverse=False)
+    _favs = bromixbmc.Addon.getFavorites()
+    favs = sorted(_favs, key=_sort_key, reverse=False)
     
     for series in favs:
         if len(series)==2:
