@@ -70,7 +70,9 @@ def _listEpisodes(episodes):
         if id!=None:
             params = {'action': ACTION_PLAY,
                       'episode': id}
-            bromixbmc.addVideoLink(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, plot=plot)
+            
+            additionalInfoLabels = {'plot': plot}
+            bromixbmc.addVideoLink(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, additionalInfoLabels=additionalInfoLabels)
     
 def _listSeries(series):
     def _sort_key(d):

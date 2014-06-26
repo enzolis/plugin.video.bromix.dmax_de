@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
+Version 1.0.2 (2014.06.25)
+- removed 'duration' and 'plot' from addVideoLink -> therefore use 'additionalInfoLabels'
+
 Version 1.0.1 (2014.06.24)
 - added support for helping with favorites
 - initial release
@@ -89,17 +92,14 @@ class Bromixbmc:
             
         return xbmcplugin.addDirectoryItem(handle=self.Addon.Handle,url=url,listitem=item,isFolder=True)
     
-    def addVideoLink(self, name, params={}, thumbnailImage="", duration=None, fanart=None, plot=""):
+    def addVideoLink(self, name, params={}, thumbnailImage="", fanart=None, additionalInfoLabels={}):
         url = self.createUrl(params)
         
         item = xbmcgui.ListItem(unicode(name), iconImage="DefaultVideo.png", thumbnailImage=thumbnailImage)
         
         # prepare infoLabels
-        infoLabels = {'title': name,
-                      'plot': plot
-                      }
-        if duration!=None:
-            infoLabels['duration'] = duration
+        infoLabels = {'title': name}
+        infoLabels.update(additionalInfoLabels)
             
         item.setInfo(type="video", infoLabels=infoLabels)
         item.setProperty('IsPlayable', 'true')
