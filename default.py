@@ -125,8 +125,9 @@ def showIndex():
     bromixbmc.addDir(bromixbmc.Addon.localize(30000), params = params, thumbnailImage=__ICON_LIBRARY__, fanart=__FANART__)
     
     # show favourties
-    params = {'action': ACTION_SHOW_FAVS}
-    bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", thumbnailImage=__ICON_FAVOURITES__, params=params, fanart=__FANART__)
+    if len(bromixbmc.Addon.getFavorites())>0:
+        params = {'action': ACTION_SHOW_FAVS}
+        bromixbmc.addDir("[B]"+bromixbmc.Addon.localize(30004)+"[/B]", thumbnailImage=__ICON_FAVOURITES__, params=params, fanart=__FANART__)
     
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
@@ -186,22 +187,13 @@ def addToFavs(series_id):
         
 def removeFromFavs(series_id):
     favs = bromixbmc.Addon.removeFavorite(series_id)
-    if len(favs)>0:
-        bromixbmc.refresh();
-    else:
-        bromixbmc.goToRoot()
+    xbmc.executebuiltin("Container.Refresh");
         
 def showFavs():
-    _favs = bromixbmc.Addon.getFavorites()
-    if len(_favs)==0:
-        dialog = xbmcgui.Dialog()
-        dialog.ok(bromixbmc.Addon.localize(30998), bromixbmc.Addon.localize(30005))
-        xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle, succeeded=False)
-        return False
-    
     def _sort_key(d):
         return d[1].get('title', "")
     
+    _favs = bromixbmc.Addon.getFavorites()
     favs = sorted(_favs, key=_sort_key, reverse=False)
     
     for series in favs:
