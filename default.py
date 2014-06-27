@@ -102,7 +102,7 @@ def _listSeries(series):
             contextParams = {'action': ACTION_ADD_TO_FAV,
                              'series': id}
             contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
-            contextMenu = [(bromixbmc.Addon.localize(30002), contextRun)]
+            contextMenu = [("[B]"+bromixbmc.Addon.localize(30002)+"[/B]", contextRun)]
             bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
             pass
 
@@ -209,7 +209,7 @@ def showFavs():
                 contextParams = {'action': ACTION_REMOVE_FROM_FAVS,
                                  'series': series[0]}
                 contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
-                contextMenu = [(bromixbmc.Addon.localize(30003), contextRun)]
+                contextMenu = [("[B]"+bromixbmc.Addon.localize(30003)+"[/B]", contextRun)]
                 
                 bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
             
