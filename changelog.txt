@@ -1,5 +1,5 @@
 1.0.2
-- Updated to Bromixbmc 1.0.2 (using own implementation for favorites)
+- Updated to Bromixbmc 1.0.2
 - FIX: crash while adding series with non-ascii characters in the title
 
 1.0.1
