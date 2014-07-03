@@ -10,9 +10,8 @@
 	<!-- Settings -->
 	<string id="30500">Fanart anzeigen</string>
 	<string id="30501">Videoqualität</string>
-	<string id="30502">Erfragen</string>
-	<string id="30503">SD</string>
-	<string id="30504">HD (720p)</string>
+	<string id="30502">SD</string>
+	<string id="30503">HD (720p)</string>
 	
 	<!-- Error messages -->
 	<string id="30999">Konnte keinen Video-Stream öffnen</string>

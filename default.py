@@ -184,12 +184,9 @@ def _getVideoResolution():
     resolution = 720
     
     vq = bromixbmc.Addon.getSetting('videoQuality')
-    if vq=='0':
-        pass
-    
-    if vq=='2':
+    if vq=='1':
         resolution=720
-    elif vq=='1':
+    elif vq=='0':
         resolution=480
     else:
         resolution=720
