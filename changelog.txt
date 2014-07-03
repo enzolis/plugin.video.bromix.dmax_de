@@ -1,4 +1,5 @@
 1.0.2
+- added support for HD (720p) and SD (see settings)
 - Updated to Bromixbmc 1.0.2
 - FIX: crash while adding series with non-ascii characters in the title
 
