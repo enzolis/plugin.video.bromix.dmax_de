@@ -9,8 +9,8 @@ import json
 import urllib
 import urllib2
 
-import pydevd
-pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
+#import pydevd
+#pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
@@ -211,7 +211,6 @@ def play(episode_id):
               'video_fields': 'name,renditions'}
     result = _doBrightcove('XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.', 'find_video_by_id', params=params)
     #json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
-    #json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name,renditions%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
     #url = json.get('FLVURL', None)
     url = _getBestVideoUrl(result)
     if url!=None:
