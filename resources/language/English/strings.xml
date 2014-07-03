@@ -9,6 +9,10 @@
 
 	<!-- Settings -->
 	<string id="30500">Show fanart</string>
+	<string id="30501">Video quality</string>
+	<string id="30502">Ask</string>
+	<string id="30503">SD</string>
+	<string id="30504">HD (720p)</string>
 
 	<!-- Error messages -->
 	<string id="30999">Could not find video stream</string>

@@ -6,10 +6,11 @@ import xbmcaddon
 
 import os
 import json
+import urllib
 import urllib2
 
-#import pydevd
-#pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
+import pydevd
+pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
 bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
@@ -30,6 +31,29 @@ ACTION_PLAY = 'play'
 SETTING_SHOW_FANART = bromixbmc.Addon.getSetting('showFanart')=="true"
 if not SETTING_SHOW_FANART:
     __FANART__ = ""
+    
+def _doBrightcove(token, command, params={}):
+    result = {}
+    
+    try:
+        opener = urllib2.build_opener()
+        opener.addheaders = [('User-Agent', 'stagefright/1.2 (Linux;Android 4.4.2)')]
+        
+        url = 'https://api.brightcove.com/services/library'
+        
+        _params = {}
+        _params.update(params)
+        _params['command'] = command
+        _params['token']= token
+        url = url + '?' + urllib.urlencode(_params)
+        
+        content = opener.open(url)
+        result = json.load(content)
+    except:
+        # do nothing
+        pass
+    
+    return result 
 
 def _getContentAsJson(url):
     result = {}
@@ -156,9 +180,43 @@ def showEpisodes(series_id):
     xbmcplugin.endOfDirectory(bromixbmc.Addon.Handle)
     return True
 
+def _getVideoResolution():
+    resolution = 720
+    
+    vq = bromixbmc.Addon.getSetting('videoQuality')
+    if vq=='0':
+        pass
+    
+    if vq=='2':
+        resolution=720
+    elif vq=='1':
+        resolution=480
+    else:
+        resolution=720
+        
+    return resolution
+
+def _getBestVideoUrl(json):
+    url = None
+    resolution = _getVideoResolution()
+    last_resolution=0
+    for stream in json.get('renditions', []):
+        test_resolution = stream.get('frameHeight', 0)
+        if test_resolution>=last_resolution and test_resolution<=resolution:
+            last_resolution = test_resolution
+            url = stream.get('url', None)
+        pass
+    
+    return url
+
 def play(episode_id):
-    json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
-    url = json.get('FLVURL', None)
+    params = {'video_id': episode_id,
+              'video_fields': 'name,renditions'}
+    result = _doBrightcove('XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.', 'find_video_by_id', params=params)
+    #json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
+    #json = _getContentAsJson('https://api.brightcove.com/services/library?command=find_video_by_id&video_fields=name,renditions%2CFLVURL%2CreferenceId%2CitemState%2Cid&media_delivery=http&video_id='+episode_id+'&token=XoVA15ecuocTY5wBbxNImXVFbQd72epyxxVcH3ZVmOA.')
+    #url = json.get('FLVURL', None)
+    url = _getBestVideoUrl(result)
     if url!=None:
         listitem = xbmcgui.ListItem(path=url)
         xbmcplugin.setResolvedUrl(bromixbmc.Addon.Handle, True, listitem)
