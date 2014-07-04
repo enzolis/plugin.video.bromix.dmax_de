@@ -15,9 +15,9 @@
 		<language>de</language>
 		<platform>all</platform>
 		<license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-		<forum></forum>
-		<website></website>
+		<forum>http://forum.xbmc.org/showthread.php?tid=198780</forum>
+		<website>www.dmax.de</website>
 		<email>bromix at gmx dot net</email>
-		<source></source>
+		<source>https://github.com/bromix/plugin.video.dmax_de</source>
 	</extension>
 </addon>
