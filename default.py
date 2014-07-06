@@ -89,7 +89,10 @@ def _listSeries(series):
                       'series': id}
             
             contextParams = {'action': __ACTION_ADD_TO_FAV__,
-                             'series': id}
+                             'series': id,
+                             'title': name.encode('utf-8'),
+                             'thumb': thumbnailImage
+                             }
             contextRun = 'RunPlugin('+bromixbmc.createUrl(contextParams)+')'
             contextMenu = [("[B]"+bromixbmc.Addon.localize(30002)+"[/B]", contextRun)]
             bromixbmc.addDir(name, params=params, thumbnailImage=thumbnailImage, fanart=__FANART__, contextMenu=contextMenu)
@@ -181,24 +184,14 @@ def play(episode_id):
         bromixbmc.showNotification(bromixbmc.Addon.localize(30999))
         
 def addToFavs(series_id):
-    json = __fusion_client__.getLibrary()
-    series = json.get('series', {})
-    series_list = series.get('series-list', {})
-    for series in series_list:
-        id = series.get('series-id', "")
-        title = series.get('series-title', None)
-        if title!=None and id==series_id:
-            
-            newFav = {}
-            newFav['title'] = title
-            
-            thumbnailImage = series.get('series-cloudinary-image', None)
-            if thumbnailImage!=None:
-                thumbnailImage = 'http://res.cloudinary.com/db79cecgq/image/upload/c_fill,g_faces,h_270,w_480/'+thumbnailImage
-            newFav['image'] = thumbnailImage
-            
-            bromixbmc.Addon.addFavorite(id, newFav)  
-            break
+    title = bromixbmc.getParam('title', '').decode('utf-8')
+    thumbnailImage = bromixbmc.getParam('thumb', '')
+    if title!='' and series_id!=None:
+        newFav = {}
+        newFav['title'] = title
+        newFav['image'] = thumbnailImage
+        
+        bromixbmc.Addon.addFavorite(series_id, newFav)
         
 def removeFromFavs(series_id):
     favs = bromixbmc.Addon.removeFavorite(series_id)
