@@ -180,6 +180,11 @@ def play(episode_id):
     if url!=None:
         listitem = xbmcgui.ListItem(path=url)
         xbmcplugin.setResolvedUrl(bromixbmc.Addon.Handle, True, listitem)
+        while True:
+            xbmc.sleep(50)
+            if xbmc.Player().isPlaying() and xbmc.getCondVisibility("Player.Paused"):
+                xbmc.Player().pause()
+                break
     else:
         bromixbmc.showNotification(bromixbmc.Addon.localize(30999))
         
