@@ -13,7 +13,7 @@ import urllib2
 #pydevd.settrace('localhost', stdoutToServer=True, stderrToServer=True)
 
 from bromixbmc import Bromixbmc
-bromixbmc = Bromixbmc("plugin.video.dmax_de", sys.argv)
+bromixbmc = Bromixbmc("plugin.video.bromix.dmax_de", sys.argv)
 
 import discoverychannel
 __fusion_client__ = discoverychannel.fusion.Client(discoverychannel.fusion.__CONFIG_DMAX_DE__)
