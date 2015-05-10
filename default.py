@@ -165,10 +165,15 @@ def _getBestVideoUrl(json):
     url = None
     resolution = _getVideoResolution()
     last_resolution=0
+    last_encoding_rate=0
     for stream in json.get('renditions', []):
         test_resolution = stream.get('frameHeight', 0)
-        if test_resolution>=last_resolution and test_resolution<=resolution:
+        test_encoding_rate = stream.get('encodingRate', 0)
+        if test_resolution>last_resolution:
+            last_encoding_rate = 0
+        if test_resolution>=last_resolution and test_resolution<=resolution and test_encoding_rate>last_encoding_rate:
             last_resolution = test_resolution
+            last_encoding_rate = test_encoding_rate
             url = stream.get('url', None)
         pass
     
